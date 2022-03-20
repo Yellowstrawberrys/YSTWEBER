@@ -1,7 +1,5 @@
 package cf.yellowstrawberry.ystweber.httpConnection;
 
-import cf.yellowstrawberry.ystweber.core.Main;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,11 +22,7 @@ public class httpCon extends Thread{
             Socket soc;
             try {
                 if((soc = server.accept()) != null){
-                    if(Main.configs.containsKey(soc.getLocalAddress().getHostAddress())){
-                        new connectionHandler(soc);
-                    }else{
-
-                    }
+                    new connectionHandler(soc).start();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
