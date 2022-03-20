@@ -1,0 +1,34 @@
+{
+  "_comment": "In plugin, you can write name of plugin **NOT FILE NAME OF PLUGIN**",
+  "plugins": [],
+
+
+  "_comment": "ServerName is url of website(like example.com); Alias is Alias of ServerName",
+  "ServerName": "default",
+  "ServerAlias": [],
+
+
+  "_comment": "In directory, you can set permission of File/Folder",
+  "Directory": [
+    {
+      "Location": "/",
+      "Allow": ["*"],
+      "Deny": []
+    }
+  ],
+
+
+  "_comment": "In Error Page, you can set",
+  "ErrorPage": [
+    {
+      "_comment": "Code should be http error status code(ex. 404, 403, etc..)",
+      "Code": 404,
+
+      "_comment": "In here, you can use \"DocumentLocation\" to set custom Page or \"Redirect\" to redirect.",
+      "DocumentLocation": ""
+    }
+  ],
+
+
+  "Enabled": true
+}

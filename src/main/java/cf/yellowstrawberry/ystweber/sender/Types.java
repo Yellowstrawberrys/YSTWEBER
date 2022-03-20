@@ -249,5 +249,10 @@ public class Types {
             put("xml", "text/xml");
             //노랑딸기 개발자.. 여기서 잠들다..
         }
+
+        @Override
+        public String get(Object key) {
+            return super.getOrDefault(key, "application/octet-stream");
+        }
     };
 }
