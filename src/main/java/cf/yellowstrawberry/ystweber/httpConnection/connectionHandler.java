@@ -6,6 +6,8 @@ import cf.yellowstrawberry.ystweber.sender.Sender;
 import java.io.*;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,26 +24,29 @@ public class connectionHandler extends Thread{
     public void run() {
         try {
             String line;
-            String lines = "";
+            List<String> liness = new ArrayList<>();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             while ((line = bufferedReader.readLine()) != null && !line.isEmpty()){
-                lines += line+"\n";
+                liness.add(line);
             }
-            if(!lines.startsWith("GET"))
+            String[] lines = liness.toArray(new String[]{});
+            if(!lines[0].startsWith("GET"))
                 Sender.returnWithStatusCode(soc.getOutputStream(), 405, soc.getLocalAddress().getHostAddress(), Main.port);
             else {
-                Matcher matcher = Pattern.compile("GET (.*) HTTP/(.*)").matcher(lines);
-                if(matcher.find())
+                String parameter = null;
+                Matcher matcher = Pattern.compile("GET (.*)"+(lines[0].contains("?") ? "\\?(.*)" : "(.*)")+" HTTP/(.*)").matcher(lines[0]);
+                if (matcher.find()) {
                     path = matcher.group(1);
-                System.out.println(path);
+                    parameter = matcher.group(2);
+                }
                 File webroot;
                 if (Main.configs.containsKey(soc.getLocalAddress().getHostAddress()))
                     webroot = new File(Main.configs.get(soc.getLocalAddress().getHostName()).getProperty("DocumentRoot"));
                 else
                     webroot = new File(Main.configs.get("default").getProperty("DocumentRoot"));
                 File content;
-                if (path.endsWith("/"))
-                    content = new File(webroot.getAbsolutePath() + path + "index.html");
+                if (path.endsWith("/") || !path.contains("."))
+                    content = new File(webroot.getAbsolutePath() + path +(!path.contains(".") ? "/" : "")+ "index.html");
                 else
                     content = new File(webroot.getAbsolutePath() + path);
                 if (content.exists()) {

@@ -1,6 +1,6 @@
 {
   "_comment": "In plugin, you can write name of plugin **NOT FILE NAME OF PLUGIN**",
-  "plugins": [],
+  "plugins": ["YSTWeberSSL"],
 
 
   "_comment": "ServerName is url of website(like example.com); Alias is Alias of ServerName",
@@ -18,7 +18,7 @@
   ],
 
 
-  "_comment": "In Error Page, you can set",
+  "_comment": "In Error Page, you can set Custom Error Page",
   "ErrorPage": [
     {
       "_comment": "Code should be http error status code(ex. 404, 403, etc..)",
@@ -29,6 +29,6 @@
     }
   ],
 
-
+  "SSL": true,
   "Enabled": true
 }

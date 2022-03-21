@@ -1,5 +1,6 @@
 package cf.yellowstrawberry.ystweber.plugin;
 
+import cf.yellowstrawberry.ystweber.api.WebPluginInformation;
 import cf.yellowstrawberry.ystweber.core.Main;
 import com.sun.source.util.Plugin;
 
@@ -41,13 +42,14 @@ public class PluginManager {
     }
 
     private void loadPlugin(final File pl) {
-        System.out.println("Starting to Load plugin: " + pl);
+        System.out.println("Starting to Load plugin '"+pl+"'");
         final URLClassLoader plClsLoader = createPlClsLoader(pl);
         final ClassLoader clsLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(plClsLoader);
-            for (Plugin plugin : ServiceLoader.load(Plugin.class, plClsLoader)) {
-                System.out.println("Plugin: "+plugin.getName());
+            for (WebPluginInformation plugin : ServiceLoader.load(WebPluginInformation.class, plClsLoader)) {
+                System.out.println("Loading Plugin: "+plugin.Name());
+
             }
         } finally {
             Thread.currentThread().setContextClassLoader(clsLoader);
@@ -60,7 +62,6 @@ public class PluginManager {
                 .map(File::toURI)
                 .map(this::toUrl)
                 .toArray(URL[]::new);
-
         return new PluginClassLoader(urls, getClass().getClassLoader());
     }
 
