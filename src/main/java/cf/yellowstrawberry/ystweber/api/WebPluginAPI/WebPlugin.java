@@ -1,4 +1,6 @@
-package cf.yellowstrawberry.ystweber.api;
+package cf.yellowstrawberry.ystweber.api.WebPluginAPI;
+
+import cf.yellowstrawberry.ystweber.api.Object.Request;
 
 public class WebPlugin {
     /**
@@ -13,5 +15,5 @@ public class WebPlugin {
     /**
      * @Param On Any Request
      * */
-    public void onRequest(){}
+    public void onRequest(Request request){}
 }

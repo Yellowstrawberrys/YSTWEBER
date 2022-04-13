@@ -1,7 +1,7 @@
 package cf.yellowstrawberry.ystweber.example;
 
-import cf.yellowstrawberry.ystweber.api.Annotations.RequestPath;
-import cf.yellowstrawberry.ystweber.api.WebPlugin;
+import cf.yellowstrawberry.ystweber.api.Object.Request;
+import cf.yellowstrawberry.ystweber.api.WebPluginAPI.WebPlugin;
 
 public class main extends WebPlugin {
     @Override
@@ -9,8 +9,8 @@ public class main extends WebPlugin {
         System.out.println("Enabled Example Plugin");
     }
 
-    @RequestPath(path = "/")
-    public String onMainPath(){
-        return "Welcome to Example Plugin!";
+    @Override
+    public void onRequest(Request request) {
+        System.out.println("Got Request with method "+request.getMethod());
     }
 }

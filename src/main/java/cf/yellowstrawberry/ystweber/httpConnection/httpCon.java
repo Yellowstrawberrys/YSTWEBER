@@ -22,7 +22,7 @@ public class httpCon extends Thread{
             Socket soc;
             try {
                 if((soc = server.accept()) != null){
-                    new connectionHandler(soc).start();
+                    new connectionHandler(soc, false).start();
                 }
             } catch (IOException e) {
                 e.printStackTrace();

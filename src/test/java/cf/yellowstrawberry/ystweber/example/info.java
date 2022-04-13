@@ -1,7 +1,7 @@
 package cf.yellowstrawberry.ystweber.example;
 
-import cf.yellowstrawberry.ystweber.api.WebPlugin;
-import cf.yellowstrawberry.ystweber.api.WebPluginInformation;
+import cf.yellowstrawberry.ystweber.api.WebPluginAPI.WebPlugin;
+import cf.yellowstrawberry.ystweber.api.WebPluginAPI.WebPluginInformation;
 
 public class info implements WebPluginInformation {
 
@@ -13,6 +13,11 @@ public class info implements WebPluginInformation {
     @Override
     public String Description() {
         return "This Plugin is Example Plugin";
+    }
+
+    @Override
+    public String Version() {
+        return "V0.0.0.2";
     }
 
     @Override

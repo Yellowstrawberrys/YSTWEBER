@@ -13,8 +13,16 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     implementation 'org.json:json:20211205'
+    implementation 'cf.ystapi:ystapi:BETA-0.0.1.7'
 }
 
 test {
     useJUnitPlatform()
+}
+
+task testJar(type: Jar) {
+    //classifier = 'tests'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    baseName = project.name + '-test'
+    from sourceSets.test.output+sourceSets.test.allSource
 }
