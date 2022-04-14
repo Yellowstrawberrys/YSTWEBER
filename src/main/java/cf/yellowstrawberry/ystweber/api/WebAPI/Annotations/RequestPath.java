@@ -1,4 +1,4 @@
-package cf.yellowstrawberry.ystweber.api.Annotations;
+package cf.yellowstrawberry.ystweber.api.WebAPI.Annotations;
 
 import cf.yellowstrawberry.ystweber.api.Enums.METHOD;
 

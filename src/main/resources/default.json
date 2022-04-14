@@ -17,7 +17,7 @@
   ],
 
   "_comment": "If you want run YSTWEBER web jar, then you need to put like this",
-  "YSTWEBBER_WEB_JAR_LOC": "Location of your YSTWEBER Web Jar",
+  "YSTWEBER_WEB_JAR_LOC": "Location of your YSTWEBER Web Jar",
 
   "_comment": "In Error Page, you can set Custom Error Page",
   "ErrorPage": [
