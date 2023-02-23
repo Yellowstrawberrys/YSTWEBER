@@ -1,9 +1,9 @@
 package cf.yellowstrawberry.ystweber.Console;
 
 import cf.yellowstrawberry.ystweber.core.Main;
-import cf.ystapi.Logging.Logger;
 
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class ConsoleHandler extends Thread{
     @Override
@@ -15,7 +15,7 @@ public class ConsoleHandler extends Thread{
             if(Main.consoleManager.commands.containsKey(command)){
                 Main.consoleManager.commands.get(command).onCalled();
             }else
-                Logger.getLoggerByName("YSTWeber").error("That command does not exist.");
+                System.out.println("That command does not exist.");
         }
     }
 }

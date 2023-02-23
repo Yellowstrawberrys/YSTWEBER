@@ -1,21 +1,18 @@
-package cf.yellowstrawberry.ystweber.httpsConnection;
+package cf.yellowstrawberry.ystweber.HttpSecureConnection;
 
-import cf.yellowstrawberry.ystweber.httpConnection.connectionHandler;
-import cf.yellowstrawberry.ystweber.httpConnection.httpCon;
+import cf.yellowstrawberry.ystweber.core.Main;
 
-import javax.net.ServerSocketFactory;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocketFactory;
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class SSLCon extends Thread{
+public class HttpsServer extends Thread{
+    CertificateManager certManager;
     ServerSocket server;
-    public SSLCon(){
+    public HttpsServer(){
         try {
-            //ServerSocketFactory sf = SSLServerSocketFactory.getDefault();
-            //server = sf.createServerSocket(443);
+            loadCert();
             server = new ServerSocket(443);
         } catch (IOException e) {
             System.out.println("Failed to Start SSL Server On Port 443\n" +
@@ -30,12 +27,15 @@ public class SSLCon extends Thread{
             Socket soc;
             try {
                 if((soc = server.accept()) != null){
-                    System.out.println("f");
-                    new HttpsConnectionHandler(soc).start();
+                    new HttpsConnectionHandler(soc, certManager).start();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void loadCert(){
+        certManager = new CertificateManager(new File(Main.RootFolder+"/ssl/public.der"), new File(Main.RootFolder+"/ssl/pub.der"), new File(Main.RootFolder+"/ssl/private.der"));
     }
 }
