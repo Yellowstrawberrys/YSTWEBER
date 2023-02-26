@@ -1,14 +1,11 @@
 package cf.yellowstrawberry.ystweber.HttpSecureConnection;
 
+import cf.yellowstrawberry.ystweber.HttpSecureConnection.tls.CertificateManager;
+import cf.yellowstrawberry.ystweber.HttpSecureConnection.tls.KeyManager;
+
 import java.io.*;
-import java.math.BigInteger;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.security.*;
-import java.security.spec.NamedParameterSpec;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HexFormat;
 import java.util.Random;
 
 public class HttpsConnectionHandler extends Thread {
@@ -17,6 +14,7 @@ public class HttpsConnectionHandler extends Thread {
     final BufferedInputStream ipt;
     final OutputStream out;
     final CertificateManager certManager;
+    final KeyManager keyman;
 
 
     public HttpsConnectionHandler(Socket soc, CertificateManager certManager) throws IOException {
@@ -25,13 +23,13 @@ public class HttpsConnectionHandler extends Thread {
         this.out = soc.getOutputStream();
         this.certManager = certManager;
         new Random().nextBytes(serverRandom);
+        this.keyman = new KeyManager();
+        pub = keyman.pub.clone();
     }
 
     @Override
     public void run() {
         try {
-            pub = certManager.generatePublicKey(serverRandom);
-            System.out.println(Arrays.toString(pub));
             byte[] b = new byte[ipt.available()];
             ipt.read(b);
             if(handshake(b)){
@@ -39,21 +37,17 @@ public class HttpsConnectionHandler extends Thread {
                 sendHandShake();
                 sendCert();
                 serverKeyExchange();
-//                sendServerHelloDone();
+                sendServerHelloDone();
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidAlgorithmParameterException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 
 
         this.interrupt();
     }
-    byte[] pub = new byte[32];
+    byte[] pub;
     byte[] signature = new byte[256];
 
     byte[] serverRandom = new byte[32];
@@ -61,9 +55,8 @@ public class HttpsConnectionHandler extends Thread {
     byte[] clientRandom = new byte[32];
     byte sessionID = (byte) 0;
 
-    public boolean handshake(byte[] b) {
+    public boolean handshake(byte[] b) throws RuntimeException {
         for (int i=0; i < 11; i++) {
-            System.out.println(b[i] +"/"+ FixedValues.c_tls12[i]);
             if(FixedValues.c_tls12[i] != ((byte) -1) && b[i] != FixedValues.c_tls12[i]) return false;
         }
         //Getting Client Random
@@ -71,17 +64,11 @@ public class HttpsConnectionHandler extends Thread {
             clientRandom[i-12] = b[i];
         }
         try {
-            System.out.println(serverRandom.length);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-            os.write(clientRandom.clone());
-            os.write(serverRandom.clone());
-            os.write(new byte[]{0x03, 0x00, 0x1d});
-            os.write(pub.clone());
-
-            signature = certManager.sign("SHA256withRSA", os.toByteArray());
-
-        } catch (NoSuchAlgorithmException | IOException | SignatureException | InvalidKeyException e) {
+            System.out.println(toHexString(pub));
+            System.out.println(pub.length);
+            signature = certManager.sign("SHA256withRSA", clientRandom.clone(), serverRandom.clone(), new byte[]{0x03, 0x00, 0x1d}, pub.clone());
+//            System.out.println(toHexString(signature));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -94,7 +81,7 @@ public class HttpsConnectionHandler extends Thread {
     private void sendHandShake() throws IOException {
         byte[] format = FixedValues.s_tls12Hello.clone();
         for(int i=11; i<43; i++) {
-            System.out.println(format[i] + "/" + (i-11));
+//            System.out.println(format[i] + "/" + (i-11));
             format[i] = serverRandom[i-11];
         }
         format[43] = 0x00;
@@ -134,29 +121,26 @@ public class HttpsConnectionHandler extends Thread {
 
     private void serverKeyExchange() throws IOException {
         byte[] format = FixedValues.s_tls12KEX.clone();
-        byte[] length = ByteBuffer.allocate(4).putInt(7+pub.length+signature.length).array();
+        byte[] length = ByteBuffer.allocate(4).putInt(8+pub.length+signature.length+4).array();
 
         format[3] = length[2];
         format[4] = length[3];
 
-        length = ByteBuffer.allocate(4).putInt(3+pub.length+signature.length).array();
+        length = ByteBuffer.allocate(4).putInt(4+pub.length+signature.length+4).array();
 
         format[6] = length[1];
         format[7] = length[2];
         format[8] = length[3];
 
-        length = ByteBuffer.allocate(4).putInt(signature.length).array();
-        System.out.println(new String(Base64.getEncoder().encode(serverRandom)));
-        System.out.println(toHexString(pub));
         format = joinByteArray(format, pub);
-        format = joinByteArray(format, joinByteArray(new byte[]{0x04, 0x01, length[2], length[3]}, signature));
-
+        format = joinByteArray(format, joinByteArray(new byte[]{0x04, 0x01, 0x01, 0x00}, signature));
+        System.out.println(toHexString(signature));
         out.write(format);
         out.flush();
     }
 
     private void sendServerHelloDone() throws IOException {
-        out.write(FixedValues.s_tls12Hello.clone());
+        out.write(FixedValues.s_tls12HelloDone.clone());
         out.flush();
     }
 

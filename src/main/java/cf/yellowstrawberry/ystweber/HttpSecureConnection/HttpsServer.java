@@ -1,11 +1,13 @@
 package cf.yellowstrawberry.ystweber.HttpSecureConnection;
 
+import cf.yellowstrawberry.ystweber.HttpSecureConnection.tls.CertificateManager;
 import cf.yellowstrawberry.ystweber.core.Main;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.Security;
 
 public class HttpsServer extends Thread{
     CertificateManager certManager;
@@ -14,6 +16,7 @@ public class HttpsServer extends Thread{
         try {
             loadCert();
             server = new ServerSocket(443);
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         } catch (IOException e) {
             System.out.println("Failed to Start SSL Server On Port 443\n" +
                     "Exiting with code 0");
