@@ -12,7 +12,7 @@ import java.util.HexFormat;
 public class FixedValues {
 
     public static byte[] c_tls12 = new byte[]{
-            0x16, 0x03, 0x01, -1, -1, //RECORD HEADER
+            0x16, 0x03, -1, -1, -1, //RECORD HEADER
             0x01, -1, -1, -1, //HANDSHAKE HEADER
             0x03, 0x03, // CLIENT VERSION
             //SKIPPING Client Random
@@ -26,7 +26,7 @@ public class FixedValues {
             0x03, 0x03, //SERVER VERSION
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // SERVER RANDOM
             0x00, // SESSION ID
-            (byte) 0xc0, 0x13, // Cipher Suite
+            (byte) 0xC0, 0x13, // Cipher Suite
             0x00, // Compression Method
             0x00, 0x05, // Extension Length
             (byte) 0xff, 0x01, 0x00, 0x01, 0x00 //Extension - Renegotiation Info

@@ -39,6 +39,6 @@ public class HttpsServer extends Thread{
     }
 
     public void loadCert(){
-        certManager = new CertificateManager(new File(Main.RootFolder+"/ssl/public.der"), new File(Main.RootFolder+"/ssl/pub.der"), new File(Main.RootFolder+"/ssl/private.der"));
+        certManager = new CertificateManager(new File(Main.RootFolder+"/ssl/cert.pem"), new File(Main.RootFolder+"/ssl/public-key.pem"), new File(Main.RootFolder+"/ssl/private-key.pem"));
     }
 }

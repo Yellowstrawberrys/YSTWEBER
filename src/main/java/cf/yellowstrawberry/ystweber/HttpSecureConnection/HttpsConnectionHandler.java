@@ -6,6 +6,7 @@ import cf.yellowstrawberry.ystweber.HttpSecureConnection.tls.KeyManager;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Random;
 
 public class HttpsConnectionHandler extends Thread {
@@ -56,18 +57,25 @@ public class HttpsConnectionHandler extends Thread {
     byte sessionID = (byte) 0;
 
     public boolean handshake(byte[] b) throws RuntimeException {
+        if(b.length == 0) return false;
         for (int i=0; i < 11; i++) {
             if(FixedValues.c_tls12[i] != ((byte) -1) && b[i] != FixedValues.c_tls12[i]) return false;
         }
         //Getting Client Random
-        for(int i=12; i<44; i++) {
-            clientRandom[i-12] = b[i];
+        for(int i=11; i<43; i++) {
+            clientRandom[i-11] = b[i];
         }
         try {
-            System.out.println(toHexString(pub));
-            System.out.println(pub.length);
-            signature = certManager.sign("SHA256withRSA", clientRandom.clone(), serverRandom.clone(), new byte[]{0x03, 0x00, 0x1d}, pub.clone());
-//            System.out.println(toHexString(signature));
+            ByteArrayOutputStream opt = new ByteArrayOutputStream();
+            opt.write(clientRandom.clone());
+            opt.write(serverRandom.clone());
+            opt.write(new byte[]{0x03, 0x00, 0x1d});
+            opt.write(pub.clone());
+
+            byte[] data = opt.toByteArray();
+
+            signature = certManager.sign("SHA256withRSA", data.clone());
+            System.out.println(certManager.verify("SHA256withRSA", signature, data.clone()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -81,7 +89,6 @@ public class HttpsConnectionHandler extends Thread {
     private void sendHandShake() throws IOException {
         byte[] format = FixedValues.s_tls12Hello.clone();
         for(int i=11; i<43; i++) {
-//            System.out.println(format[i] + "/" + (i-11));
             format[i] = serverRandom[i-11];
         }
         format[43] = 0x00;
@@ -134,7 +141,7 @@ public class HttpsConnectionHandler extends Thread {
 
         format = joinByteArray(format, pub);
         format = joinByteArray(format, joinByteArray(new byte[]{0x04, 0x01, 0x01, 0x00}, signature));
-        System.out.println(toHexString(signature));
+
         out.write(format);
         out.flush();
     }
