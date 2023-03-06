@@ -141,6 +141,7 @@ public class HttpsConnectionHandler extends Thread {
         format[8] = length[3];
 
         format = ByteUtils.joinArrays(format, pub);
+
         format = ByteUtils.joinArrays(format, new byte[]{0x04, 0x01, 0x01, 0x00}, signature);
 
         out.write(format);

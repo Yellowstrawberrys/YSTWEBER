@@ -13,7 +13,7 @@ public class ByteUtils {
     }
     public static byte[] joinArrays(byte[]... arrays) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        for(byte[] b : arrays) bos.writeBytes(b);
+        for(byte[] b : arrays) bos.writeBytes(b.clone());
         return bos.toByteArray();
     }
 }

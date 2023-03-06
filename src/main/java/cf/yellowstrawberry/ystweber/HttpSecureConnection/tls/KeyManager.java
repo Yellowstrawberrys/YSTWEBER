@@ -1,15 +1,17 @@
 package cf.yellowstrawberry.ystweber.HttpSecureConnection.tls;
 
 import cf.yellowstrawberry.ystweber.utils.ByteUtils;
-import org.bouncycastle.jcajce.interfaces.XDHPublicKey;
 
 import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHPublicKeySpec;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.NamedParameterSpec;
+import java.util.Arrays;
+import java.util.Base64;
 
 public class KeyManager {
 
@@ -17,12 +19,9 @@ public class KeyManager {
     public byte[] privateKey;
     public byte[] param;
 
-    private PublicKey dhPub;
-
     public KeyManager() {
         try {
             generate();
-            generateParam();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException |
                  InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
@@ -33,28 +32,43 @@ public class KeyManager {
         }
     }
 
-    public void generate() throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchProviderException, IOException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH");
-        NamedParameterSpec paramSpec = new NamedParameterSpec("X25519");
-        kpg.initialize(paramSpec);
-        KeyPair kp = kpg.generateKeyPair();
-        dhPub = kp.getPublic();
+    private void generate() throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchProviderException, IOException {
+//        KeyPairGenerator kpg = KeyPairGenerator.getInstance("XDH");
+//        NamedParameterSpec paramSpec = new NamedParameterSpec("X25519");
+//        kpg.initialize(paramSpec);
+//        KeyPair kp = kpg.generateKeyPair();
+//        dhPub = (DHPublicKey) kp.getPublic();
+//
+//        privateKey = new byte[32];
+//        System.arraycopy(kp.getPrivate().getEncoded(), 16, privateKey, 0, 32);
+//
+//        pub = new byte[32];
+//        System.arraycopy(dhPub.getEncoded(), 12, pub, 0, 32)
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ECDH");
+        DHPublicKey originalDhPubKey;
+        KeyPair kp;
+        BigInteger p, g, y;
 
-        privateKey = new byte[32];
-        System.arraycopy(kp.getPrivate().getEncoded(), 16, privateKey, 0, 32);
+        kpg.initialize(1024);
+        kp = kpg.generateKeyPair();
+
+        originalDhPubKey = (DHPublicKey) kp.getPublic();
 
         pub = new byte[32];
-        System.arraycopy(dhPub.getEncoded(), 12, pub, 0, 32);
+        System.out.println(originalDhPubKey.getEncoded().length);
+
+        System.arraycopy(kp.getPublic().getEncoded(), originalDhPubKey.getEncoded().length-32, pub, 0, 32);
+        System.out.println(new String(Base64.getEncoder().encode(originalDhPubKey.getEncoded())));
+
+        // get P, G and Y specs
+        p = originalDhPubKey.getParams().getP();
+        g = originalDhPubKey.getParams().getG();
+        y = originalDhPubKey.getY();
+
+        generateParam(p.toByteArray(), g.toByteArray(), y.toByteArray());
     }
 
-    private void generateParam() throws InvalidKeySpecException, NoSuchAlgorithmException {
-        KeyFactory kf = KeyFactory.getInstance("XDH");
-        DHPublicKeySpec dhkeySpec = kf.getKeySpec(dhPub, DHPublicKeySpec.class);
-
-        byte[] p = dhkeySpec.getP().toByteArray();
-        byte[] g = dhkeySpec.getG().toByteArray();
-        byte[] ys = dhkeySpec.getY().toByteArray();
-
+    private void generateParam(byte[] p, byte[] g, byte[] ys) throws InvalidKeySpecException, NoSuchAlgorithmException {
         byte[] result = new byte[p.length+g.length+ys.length+6];
 
         System.arraycopy(ByteUtils.getIntegerAsByteArray(2, p.length), 0, result, 0, 2);
