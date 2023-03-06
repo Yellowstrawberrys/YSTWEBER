@@ -2,11 +2,11 @@ package cf.yellowstrawberry.ystweber.HttpSecureConnection;
 
 import cf.yellowstrawberry.ystweber.HttpSecureConnection.tls.CertificateManager;
 import cf.yellowstrawberry.ystweber.HttpSecureConnection.tls.KeyManager;
+import cf.yellowstrawberry.ystweber.utils.ByteUtils;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Random;
 
 public class HttpsConnectionHandler extends Thread {
@@ -69,8 +69,9 @@ public class HttpsConnectionHandler extends Thread {
             ByteArrayOutputStream opt = new ByteArrayOutputStream();
             opt.write(clientRandom.clone());
             opt.write(serverRandom.clone());
-            opt.write(new byte[]{0x03, 0x00, 0x1d});
-            opt.write(pub.clone());
+            opt.write(keyman.param.clone());
+//            opt.write(new byte[]{0x03, 0x00, 0x1d});
+//            opt.write(pub.clone());
 
             byte[] data = opt.toByteArray();
 
@@ -122,7 +123,7 @@ public class HttpsConnectionHandler extends Thread {
 
         System.out.println(FixedValues.s_tls12Cert.length);
 
-        out.write(joinByteArray(format, certManager.getCertificate()));
+        out.write(ByteUtils.joinArrays(format, certManager.getCertificate()));
         out.flush();
     }
 
@@ -139,8 +140,8 @@ public class HttpsConnectionHandler extends Thread {
         format[7] = length[2];
         format[8] = length[3];
 
-        format = joinByteArray(format, pub);
-        format = joinByteArray(format, joinByteArray(new byte[]{0x04, 0x01, 0x01, 0x00}, signature));
+        format = ByteUtils.joinArrays(format, pub);
+        format = ByteUtils.joinArrays(format, new byte[]{0x04, 0x01, 0x01, 0x00}, signature);
 
         out.write(format);
         out.flush();
@@ -149,13 +150,6 @@ public class HttpsConnectionHandler extends Thread {
     private void sendServerHelloDone() throws IOException {
         out.write(FixedValues.s_tls12HelloDone.clone());
         out.flush();
-    }
-
-    private byte[] joinByteArray(byte[] a, byte[] b) {
-        byte[] r = new byte[a.length+b.length];
-        System.arraycopy(a, 0, r, 0, a.length);
-        System.arraycopy(b, 0, r, a.length, b.length);
-        return r;
     }
 
     // FOR DEBUGGING

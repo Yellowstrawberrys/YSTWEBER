@@ -1,9 +1,13 @@
 package cf.yellowstrawberry.ystweber.HttpSecureConnection.tls;
 
+import javax.crypto.interfaces.DHPrivateKey;
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.DHPublicKeySpec;
 import java.io.*;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 
 public class CertificateManager {
     static KeyLoader loader = new KeyLoader();
